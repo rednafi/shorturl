@@ -2,11 +2,11 @@ package tests
 
 import (
 	"crypto/sha1"
+	"crypto/tls"
 	"encoding/hex"
 	"github.com/rednafi/shorturl/src"
-	"testing"
 	"net/http"
-	"crypto/tls"
+	"testing"
 )
 
 func TestValidateUrl(t *testing.T) {
@@ -35,7 +35,10 @@ func TestTrimSlash(t *testing.T) {
 func TestGenerateId(t *testing.T) {
 	id := src.GenerateId(10)
 	if len(id) != 16 {
-		t.Errorf("GenerateId returned id of incorrect length, expected: 10, got: %d", len(id))
+		t.Errorf(
+			"GenerateId returned id of incorrect length, expected: 10, got: %d",
+			len(id),
+		)
 	}
 }
 
@@ -53,33 +56,33 @@ func TestGenerateHash(t *testing.T) {
 }
 
 func TestGetQualifiedTinyUrl(t *testing.T) {
-    t.Run("returns https url if request is tls", func(t *testing.T) {
-        req := &http.Request{
-            TLS: &tls.ConnectionState{},
-            Host: "example.com",
-        }
-        id := "abc123"
+	t.Run("returns https url if request is tls", func(t *testing.T) {
+		req := &http.Request{
+			TLS:  &tls.ConnectionState{},
+			Host: "example.com",
+		}
+		id := "abc123"
 
-        url := src.GetQualifiedTinyUrl(req, id)
+		url := src.GetQualifiedTinyUrl(req, id)
 
-        want := "https://example.com/r/abc123"
-        if url != want {
-            t.Errorf("got %q, want %q", url, want)
-        }
-    })
+		want := "https://example.com/r/abc123"
+		if url != want {
+			t.Errorf("got %q, want %q", url, want)
+		}
+	})
 
-    t.Run("returns http url if request is not tls", func(t *testing.T) {
-        req := &http.Request{
-            Host: "example.com",
-        }
-        id := "abc123"
+	t.Run("returns http url if request is not tls", func(t *testing.T) {
+		req := &http.Request{
+			Host: "example.com",
+		}
+		id := "abc123"
 
-        url := src.GetQualifiedTinyUrl(req, id)
+		url := src.GetQualifiedTinyUrl(req, id)
 
-        want := "http://example.com/r/abc123"
-        if url != want {
-            t.Errorf("got %q, want %q", url, want)
-        }
-    })
+		want := "http://example.com/r/abc123"
+		if url != want {
+			t.Errorf("got %q, want %q", url, want)
+		}
+	})
 
 }

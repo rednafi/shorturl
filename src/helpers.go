@@ -6,10 +6,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
-	"fmt"
 )
 
 // ValidateUrl checks if a given URL is valid

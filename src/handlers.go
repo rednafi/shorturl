@@ -153,5 +153,5 @@ func RedirectUrl(w http.ResponseWriter, r *http.Request) {
 }
 
 func DisplayIndex(w http.ResponseWriter, r *http.Request) {
-    http.ServeFile(w, r, "src/index.html")
+	http.ServeFile(w, r, "src/index.html")
 }
