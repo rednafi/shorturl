@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"fmt"
 )
 
 // ValidateUrl checks if a given URL is valid
@@ -52,4 +53,12 @@ func JsonError(w http.ResponseWriter, err interface{}, code int) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(err)
+}
+
+// GetQualifiedTinyUrl returns the qualified tinyurl
+func GetQualifiedTinyUrl(r *http.Request, id string) string {
+	if r.TLS != nil {
+		return fmt.Sprintf("https://%s/r/%s", r.Host, id)
+	}
+	return fmt.Sprintf("http://%s/r/%s", r.Host, id)
 }

@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"github.com/rednafi/shorturl/src"
 	"testing"
+	"net/http"
+	"crypto/tls"
 )
 
 func TestValidateUrl(t *testing.T) {
@@ -48,4 +50,36 @@ func TestGenerateHash(t *testing.T) {
 	if result != expected {
 		t.Errorf("GenerateHash failed, expected: %s, got: %s", expected, result)
 	}
+}
+
+func TestGetQualifiedTinyUrl(t *testing.T) {
+    t.Run("returns https url if request is tls", func(t *testing.T) {
+        req := &http.Request{
+            TLS: &tls.ConnectionState{},
+            Host: "example.com",
+        }
+        id := "abc123"
+
+        url := src.GetQualifiedTinyUrl(req, id)
+
+        want := "https://example.com/r/abc123"
+        if url != want {
+            t.Errorf("got %q, want %q", url, want)
+        }
+    })
+
+    t.Run("returns http url if request is not tls", func(t *testing.T) {
+        req := &http.Request{
+            Host: "example.com",
+        }
+        id := "abc123"
+
+        url := src.GetQualifiedTinyUrl(req, id)
+
+        want := "http://example.com/r/abc123"
+        if url != want {
+            t.Errorf("got %q, want %q", url, want)
+        }
+    })
+
 }

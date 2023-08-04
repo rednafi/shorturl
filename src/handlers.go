@@ -3,9 +3,11 @@ package src
 import (
 	"database/sql"
 	"encoding/json"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
+	"strings"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var Db *sql.DB
@@ -45,6 +47,7 @@ func ShortenUrl(w http.ResponseWriter, r *http.Request) {
 			map[string]string{"error": "Method not allowed"},
 			http.StatusMethodNotAllowed,
 		)
+		return
 	}
 
 	// Check if decoding was successful
@@ -91,7 +94,7 @@ func ShortenUrl(w http.ResponseWriter, r *http.Request) {
 
 	// If id exists, return it as tinyurl and exit
 	if id != "" {
-		res := Response{TinyUrl: id}
+		res := Response{TinyUrl: GetQualifiedTinyUrl(r, id)}
 		jsonRes, _ := json.Marshal(res)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonRes)
@@ -114,15 +117,25 @@ func ShortenUrl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return new ID
-	res := Response{TinyUrl: id}
+	res := Response{TinyUrl: GetQualifiedTinyUrl(r, id)}
 	jsonRes, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonRes)
 }
 
 func RedirectUrl(w http.ResponseWriter, r *http.Request) {
+	// Check if method is GET and return error if not
+	if r.Method != http.MethodGet {
+		JsonError(
+			w,
+			map[string]string{"error": "Method not allowed"},
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
 	// Get the short URL from the request path
-	id := TrimSlash(r.URL.Path)
+	id := strings.TrimPrefix(TrimSlash(r.URL.Path), "r/")
 
 	// Query the database for the long URL
 	var url string
@@ -137,4 +150,8 @@ func RedirectUrl(w http.ResponseWriter, r *http.Request) {
 
 	// Redirect to the long URL
 	http.Redirect(w, r, url, http.StatusSeeOther)
+}
+
+func DisplayIndex(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "src/index.html")
 }

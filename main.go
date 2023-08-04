@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/shorten", src.ShortenUrl)
-	http.HandleFunc("/", src.RedirectUrl)
+	http.HandleFunc("/", src.DisplayIndex) 	// Display the home page
+	http.HandleFunc("/shorten/", src.ShortenUrl) // Shorten the URL
+	http.HandleFunc("/r/", src.RedirectUrl) 	// Redirect to the original URL
 	http.ListenAndServe(":8080", nil)
+
 	defer src.Db.Close()
 }
